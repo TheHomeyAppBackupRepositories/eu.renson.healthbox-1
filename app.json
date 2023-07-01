@@ -1,1 +1,535 @@
-{"_comment":"This file is generated. Please edit .homeycompose/app.json instead.","id":"eu.renson.healthbox","version":"1.2.1","compatibility":">=5.0.0","sdk":3,"brandColor":"#00275b","platforms":["local"],"name":{"en":"Renson"},"description":{"en":"Creating healthy spaces"},"category":["climate"],"tags":{"en":["renson","healthbox","healthbox 3.0","healthbox 3","ventilation","fan"],"nl":["renson","healthbox","healthbox 3.0","healthbox 3","ventilatie","fan"]},"permissions":[],"images":{"small":"/assets/images/small.png","large":"/assets/images/large.png","xlarge":"/assets/images/xlarge.png"},"author":{"name":"Christophe Rouckhout"},"contributing":{"donate":{"paypal":{"username":"Tixhyl"}}},"bugs":{"url":"https://github.com/Tixhyl/eu.renson.healthbox/issues"},"source":"https://github.com/Tixhyl/eu.renson.healthbox","homepage":"https://www.renson.eu","support":"mailto:info@tixhyl.be","drivers":[{"name":{"en":"Endura delta"},"class":"fan","capabilities":["measure_co2.airquality","measure_co2.co2","measure_humidity","measure_temperature.indoor","measure_temperature.outdoor","measure_power.current_level","measure_wind_strength.pulse_airflow","measure_wind_strength.eta_airflow"],"capabilitiesOptions":{"measure_co2.airquality":{"title":{"en":"Airquality","nl":"Luchtkwaliteit"}},"measure_co2.co2":{"title":{"en":"CO2","nl":"CO2"}},"measure_humidity":{"title":{"en":"Humidity","nl":"Luchtvochtigheid"}},"measure_temperature.indoor":{"title":{"en":"Extracted air temperature","nl":"Temperatuur extractielucht"}},"measure_temperature.outdoor":{"title":{"en":"Outside air temperature","nl":"Temperatuur buitenlucht"}},"measure_power.current_level":{"title":{"en":"Current level","nl":"Huidig niveau"},"units":{"en":"","nl":""}},"measure_wind_strength.pulse_airflow":{"title":{"en":"Pulsion airflow","nl":"Pulsie airflow"},"units":{"en":"m3/h","nl":"m3/u"}},"measure_wind_strength.eta_airflow":{"title":{"en":"Extraction airflow","nl":"Extractie airflow"},"units":{"en":"m3/h","nl":"m3/u"}}},"platforms":["local"],"connectivity":["lan"],"images":{"small":"/drivers/endura-delta/assets/images/small.png","large":"/drivers/endura-delta/assets/images/large.png","xlarge":"/drivers/endura-delta/assets/images/xlarge.png"},"pair":[{"id":"pair","navigation":{"next":"list_my_devices"}},{"id":"list_my_devices","template":"list_devices","navigation":{"next":"add_my_devices","prev":"pair"},"options":{"singular":true}},{"id":"add_my_devices","template":"add_devices"}],"id":"endura-delta","settings":[{"id":"name","type":"text","label":{"en":"Unit name"}},{"id":"endura_ip","type":"text","label":{"en":"IP"}}]},{"name":{"en":"Healthbox 3.0"},"class":"fan","capabilities":["measure_flowrate","boost","timeleft","level","timepicker"],"platforms":["local"],"connectivity":["lan"],"images":{"small":"/drivers/healthbox-30/assets/images/small.png","large":"/drivers/healthbox-30/assets/images/large.png","xlarge":"/drivers/healthbox-30/assets/images/xlarge.png"},"pair":[{"id":"list_healthboxes","template":"list_devices","options":{"singular":true},"navigation":{"next":"list_rooms"}},{"id":"list_rooms","template":"list_devices","navigation":{"next":"add_devices","prev":"list_healthboxes"}},{"id":"add_devices","template":"add_devices"}],"id":"healthbox-30"}],"flow":{"triggers":[{"id":"measure_rpm_changed","title":{"en":"RPM changed","nl":"RPM veranderd"},"tokens":[{"type":"number","name":"measure_rpm","title":{"en":"RPM","nl":"RPM"},"example":420}],"args":[{"type":"device","name":"device","filter":"driver_id=healthbox-30&class=fan"}]},{"id":"measure_flowrate_changed","title":{"en":"Flowrate changed","nl":"Debiet veranderd"},"tokens":[{"type":"number","name":"measure_flowrate","title":{"en":"Flowrate","nl":"Debiet"},"example":5}],"args":[{"type":"device","name":"device","filter":"driver_id=healthbox-30"}]},{"id":"measure_airqualityindex_changed","title":{"en":"Global Air Quality changed","nl":"Algemene Luchtkwaliteit veranderd"},"tokens":[{"type":"number","name":"measure_airqualityindex","title":{"en":"Global Air Quality Index ","nl":"Algemene Luchtkwaliteitsindex"},"example":72}],"args":[{"type":"device","name":"device","filter":"driver_id=healthbox-30&class=fan"}]}],"actions":[{"id":"set-flowrate","title":{"en":"Set flow rate of a room for a specific time","nl":"Zet het debiet van een kamer voor een bepaalde tijd"},"titleFormatted":{"en":"Set flowrate of [[rooms]] to [[flowrate]] for [[activationtime]] seconds","nl":"Zet debiet van [[rooms]] op [[flowrate]] voor [[activationtime]] seconden"},"args":[{"type":"device","name":"device","filter":"driver_id=healthbox-30&class=fan"},{"type":"autocomplete","name":"rooms","placeholder":{"en":"Room","nl":"Kamer"}},{"type":"range","name":"flowrate","min":0,"max":200,"step":1,"label":"%","labelDecimals":0,"title":{"en":"Flowrate","nl":"Debiet"}},{"type":"number","name":"activationtime","title":{"en":"Time in seconds","nl":"Tijd in seconden"},"placeholder":{"en":"900"}}]},{"id":"stop-boost","title":{"en":"Stop boost for a specific room","nl":"Stop boost van een specifieke kamer"},"titleFormatted":{"en":"Stop boost of [[rooms]]","nl":"Stop boost van [[rooms]]"},"args":[{"type":"device","name":"device","filter":"driver_id=healthbox-30&class=fan"},{"type":"autocomplete","name":"rooms","placeholder":{"en":"Room","nl":"Kamer"}}]}]},"capabilities":{"boost":{"type":"boolean","title":{"en":"Boost","nl":"Boost"},"uiComponent":"toggle","getable":true,"setable":true,"insights":true,"icon":"/assets/boost.svg"},"level":{"type":"number","title":{"en":"Level","nl":"Niveau"},"chartType":"stepLine","min":0,"max":200,"decimals":0,"units":"%","getable":true,"setable":true,"uiComponent":"slider"},"measure_airqualityindex":{"type":"number","title":{"en":"Global Air Quality Index","nl":"Algemene Luchtkwaliteitsindex"},"uiComponent":"sensor","getable":true,"setable":false,"units":{"en":""},"insights":true,"icon":"/assets/airquality.svg"},"measure_flowrate":{"type":"number","title":{"en":"Flow Rate","nl":"Debiet"},"uiComponent":"sensor","getable":true,"setable":false,"units":{"en":"m³/h"},"insights":true,"icon":"/assets/flowrate.svg"},"measure_rpm":{"type":"number","title":{"en":"RPM","nl":"RPM"},"uiComponent":"sensor","getable":true,"setable":false,"units":{"en":"rpm"},"insights":true,"icon":"/assets/rpm.svg"},"timeleft":{"type":"string","title":{"en":"Time Left","nl":"Tijd resterend"},"getable":true,"setable":true,"uiComponent":"sensor","icon":"/assets/time.svg"},"timepicker":{"type":"enum","title":{"en":"Timeout","nl":"Timeout"},"values":[{"id":"15m","title":{"en":"15 Min"}},{"id":"1h","title":{"en":"1 Hour","nl":"1 Uur"}},{"id":"2h","title":{"en":"2 Hours","nl":"2 Uur"}},{"id":"5h","title":{"en":"5 Hours","nl":"5 Uur"}},{"id":"8h","title":{"en":"8 Hours","nl":"8 Uur"}},{"id":"12h","title":{"en":"12 Hours","nl":"12 Uur"}}],"getable":true,"setable":true,"uiComponent":"picker"}}}
+{
+  "_comment": "This file is generated. Please edit .homeycompose/app.json instead.",
+  "id": "eu.renson.healthbox",
+  "version": "1.2.1",
+  "compatibility": ">=5.0.0",
+  "sdk": 3,
+  "brandColor": "#00275b",
+  "platforms": [
+    "local"
+  ],
+  "name": {
+    "en": "Renson"
+  },
+  "description": {
+    "en": "Creating healthy spaces"
+  },
+  "category": [
+    "climate"
+  ],
+  "tags": {
+    "en": [
+      "renson",
+      "healthbox",
+      "healthbox 3.0",
+      "healthbox 3",
+      "ventilation",
+      "fan"
+    ],
+    "nl": [
+      "renson",
+      "healthbox",
+      "healthbox 3.0",
+      "healthbox 3",
+      "ventilatie",
+      "fan"
+    ]
+  },
+  "permissions": [],
+  "images": {
+    "small": "/assets/images/small.png",
+    "large": "/assets/images/large.png",
+    "xlarge": "/assets/images/xlarge.png"
+  },
+  "author": {
+    "name": "Christophe Rouckhout"
+  },
+  "contributing": {
+    "donate": {
+      "paypal": {
+        "username": "Tixhyl"
+      }
+    }
+  },
+  "bugs": {
+    "url": "https://github.com/Tixhyl/eu.renson.healthbox/issues"
+  },
+  "source": "https://github.com/Tixhyl/eu.renson.healthbox",
+  "homepage": "https://www.renson.eu",
+  "support": "mailto:info@tixhyl.be",
+  "drivers": [
+    {
+      "name": {
+        "en": "Endura delta"
+      },
+      "class": "fan",
+      "capabilities": [
+        "measure_co2.airquality",
+        "measure_co2.co2",
+        "measure_humidity",
+        "measure_temperature.indoor",
+        "measure_temperature.outdoor",
+        "measure_power.current_level",
+        "measure_wind_strength.pulse_airflow",
+        "measure_wind_strength.eta_airflow"
+      ],
+      "capabilitiesOptions": {
+        "measure_co2.airquality": {
+          "title": {
+            "en": "Airquality",
+            "nl": "Luchtkwaliteit"
+          }
+        },
+        "measure_co2.co2": {
+          "title": {
+            "en": "CO2",
+            "nl": "CO2"
+          }
+        },
+        "measure_humidity": {
+          "title": {
+            "en": "Humidity",
+            "nl": "Luchtvochtigheid"
+          }
+        },
+        "measure_temperature.indoor": {
+          "title": {
+            "en": "Extracted air temperature",
+            "nl": "Temperatuur extractielucht"
+          }
+        },
+        "measure_temperature.outdoor": {
+          "title": {
+            "en": "Outside air temperature",
+            "nl": "Temperatuur buitenlucht"
+          }
+        },
+        "measure_power.current_level": {
+          "title": {
+            "en": "Current level",
+            "nl": "Huidig niveau"
+          },
+          "units": {
+            "en": "",
+            "nl": ""
+          }
+        },
+        "measure_wind_strength.pulse_airflow": {
+          "title": {
+            "en": "Pulsion airflow",
+            "nl": "Pulsie airflow"
+          },
+          "units": {
+            "en": "m3/h",
+            "nl": "m3/u"
+          }
+        },
+        "measure_wind_strength.eta_airflow": {
+          "title": {
+            "en": "Extraction airflow",
+            "nl": "Extractie airflow"
+          },
+          "units": {
+            "en": "m3/h",
+            "nl": "m3/u"
+          }
+        }
+      },
+      "platforms": [
+        "local"
+      ],
+      "connectivity": [
+        "lan"
+      ],
+      "images": {
+        "small": "/drivers/endura-delta/assets/images/small.png",
+        "large": "/drivers/endura-delta/assets/images/large.png",
+        "xlarge": "/drivers/endura-delta/assets/images/xlarge.png"
+      },
+      "pair": [
+        {
+          "id": "pair",
+          "navigation": {
+            "next": "list_my_devices"
+          }
+        },
+        {
+          "id": "list_my_devices",
+          "template": "list_devices",
+          "navigation": {
+            "next": "add_my_devices",
+            "prev": "pair"
+          },
+          "options": {
+            "singular": true
+          }
+        },
+        {
+          "id": "add_my_devices",
+          "template": "add_devices"
+        }
+      ],
+      "id": "endura-delta",
+      "settings": [
+        {
+          "id": "name",
+          "type": "text",
+          "label": {
+            "en": "Unit name"
+          }
+        },
+        {
+          "id": "endura_ip",
+          "type": "text",
+          "label": {
+            "en": "IP"
+          }
+        }
+      ]
+    },
+    {
+      "name": {
+        "en": "Healthbox 3.0"
+      },
+      "class": "fan",
+      "capabilities": [
+        "measure_flowrate",
+        "boost",
+        "timeleft",
+        "level",
+        "timepicker"
+      ],
+      "platforms": [
+        "local"
+      ],
+      "connectivity": [
+        "lan"
+      ],
+      "images": {
+        "small": "/drivers/healthbox-30/assets/images/small.png",
+        "large": "/drivers/healthbox-30/assets/images/large.png",
+        "xlarge": "/drivers/healthbox-30/assets/images/xlarge.png"
+      },
+      "pair": [
+        {
+          "id": "list_healthboxes",
+          "template": "list_devices",
+          "options": {
+            "singular": true
+          },
+          "navigation": {
+            "next": "list_rooms"
+          }
+        },
+        {
+          "id": "list_rooms",
+          "template": "list_devices",
+          "navigation": {
+            "next": "add_devices",
+            "prev": "list_healthboxes"
+          }
+        },
+        {
+          "id": "add_devices",
+          "template": "add_devices"
+        }
+      ],
+      "id": "healthbox-30"
+    }
+  ],
+  "flow": {
+    "triggers": [
+      {
+        "id": "measure_rpm_changed",
+        "title": {
+          "en": "RPM changed",
+          "nl": "RPM veranderd"
+        },
+        "tokens": [
+          {
+            "type": "number",
+            "name": "measure_rpm",
+            "title": {
+              "en": "RPM",
+              "nl": "RPM"
+            },
+            "example": 420
+          }
+        ],
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=healthbox-30&class=fan"
+          }
+        ]
+      },
+      {
+        "id": "measure_flowrate_changed",
+        "title": {
+          "en": "Flowrate changed",
+          "nl": "Debiet veranderd"
+        },
+        "tokens": [
+          {
+            "type": "number",
+            "name": "measure_flowrate",
+            "title": {
+              "en": "Flowrate",
+              "nl": "Debiet"
+            },
+            "example": 5
+          }
+        ],
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=healthbox-30"
+          }
+        ]
+      },
+      {
+        "id": "measure_airqualityindex_changed",
+        "title": {
+          "en": "Global Air Quality changed",
+          "nl": "Algemene Luchtkwaliteit veranderd"
+        },
+        "tokens": [
+          {
+            "type": "number",
+            "name": "measure_airqualityindex",
+            "title": {
+              "en": "Global Air Quality Index ",
+              "nl": "Algemene Luchtkwaliteitsindex"
+            },
+            "example": 72
+          }
+        ],
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=healthbox-30&class=fan"
+          }
+        ]
+      }
+    ],
+    "actions": [
+      {
+        "id": "set-flowrate",
+        "title": {
+          "en": "Set flow rate of a room for a specific time",
+          "nl": "Zet het debiet van een kamer voor een bepaalde tijd"
+        },
+        "titleFormatted": {
+          "en": "Set flowrate of [[rooms]] to [[flowrate]] for [[activationtime]] seconds",
+          "nl": "Zet debiet van [[rooms]] op [[flowrate]] voor [[activationtime]] seconden"
+        },
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=healthbox-30&class=fan"
+          },
+          {
+            "type": "autocomplete",
+            "name": "rooms",
+            "placeholder": {
+              "en": "Room",
+              "nl": "Kamer"
+            }
+          },
+          {
+            "type": "range",
+            "name": "flowrate",
+            "min": 0,
+            "max": 200,
+            "step": 1,
+            "label": "%",
+            "labelDecimals": 0,
+            "title": {
+              "en": "Flowrate",
+              "nl": "Debiet"
+            }
+          },
+          {
+            "type": "number",
+            "name": "activationtime",
+            "title": {
+              "en": "Time in seconds",
+              "nl": "Tijd in seconden"
+            },
+            "placeholder": {
+              "en": "900"
+            }
+          }
+        ]
+      },
+      {
+        "id": "stop-boost",
+        "title": {
+          "en": "Stop boost for a specific room",
+          "nl": "Stop boost van een specifieke kamer"
+        },
+        "titleFormatted": {
+          "en": "Stop boost of [[rooms]]",
+          "nl": "Stop boost van [[rooms]]"
+        },
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=healthbox-30&class=fan"
+          },
+          {
+            "type": "autocomplete",
+            "name": "rooms",
+            "placeholder": {
+              "en": "Room",
+              "nl": "Kamer"
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "capabilities": {
+    "boost": {
+      "type": "boolean",
+      "title": {
+        "en": "Boost",
+        "nl": "Boost"
+      },
+      "uiComponent": "toggle",
+      "getable": true,
+      "setable": true,
+      "insights": true,
+      "icon": "/assets/boost.svg"
+    },
+    "level": {
+      "type": "number",
+      "title": {
+        "en": "Level",
+        "nl": "Niveau"
+      },
+      "chartType": "stepLine",
+      "min": 0,
+      "max": 200,
+      "decimals": 0,
+      "units": "%",
+      "getable": true,
+      "setable": true,
+      "uiComponent": "slider"
+    },
+    "measure_airqualityindex": {
+      "type": "number",
+      "title": {
+        "en": "Global Air Quality Index",
+        "nl": "Algemene Luchtkwaliteitsindex"
+      },
+      "uiComponent": "sensor",
+      "getable": true,
+      "setable": false,
+      "units": {
+        "en": ""
+      },
+      "insights": true,
+      "icon": "/assets/airquality.svg"
+    },
+    "measure_flowrate": {
+      "type": "number",
+      "title": {
+        "en": "Flow Rate",
+        "nl": "Debiet"
+      },
+      "uiComponent": "sensor",
+      "getable": true,
+      "setable": false,
+      "units": {
+        "en": "m³/h"
+      },
+      "insights": true,
+      "icon": "/assets/flowrate.svg"
+    },
+    "measure_rpm": {
+      "type": "number",
+      "title": {
+        "en": "RPM",
+        "nl": "RPM"
+      },
+      "uiComponent": "sensor",
+      "getable": true,
+      "setable": false,
+      "units": {
+        "en": "rpm"
+      },
+      "insights": true,
+      "icon": "/assets/rpm.svg"
+    },
+    "timeleft": {
+      "type": "string",
+      "title": {
+        "en": "Time Left",
+        "nl": "Tijd resterend"
+      },
+      "getable": true,
+      "setable": true,
+      "uiComponent": "sensor",
+      "icon": "/assets/time.svg"
+    },
+    "timepicker": {
+      "type": "enum",
+      "title": {
+        "en": "Timeout",
+        "nl": "Timeout"
+      },
+      "values": [
+        {
+          "id": "15m",
+          "title": {
+            "en": "15 Min"
+          }
+        },
+        {
+          "id": "1h",
+          "title": {
+            "en": "1 Hour",
+            "nl": "1 Uur"
+          }
+        },
+        {
+          "id": "2h",
+          "title": {
+            "en": "2 Hours",
+            "nl": "2 Uur"
+          }
+        },
+        {
+          "id": "5h",
+          "title": {
+            "en": "5 Hours",
+            "nl": "5 Uur"
+          }
+        },
+        {
+          "id": "8h",
+          "title": {
+            "en": "8 Hours",
+            "nl": "8 Uur"
+          }
+        },
+        {
+          "id": "12h",
+          "title": {
+            "en": "12 Hours",
+            "nl": "12 Uur"
+          }
+        }
+      ],
+      "getable": true,
+      "setable": true,
+      "uiComponent": "picker"
+    }
+  }
+}
