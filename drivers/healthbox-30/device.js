@@ -47,25 +47,50 @@ class MyDevice extends Device {
    * onInit is called when the device is initialized.
    */
   async onInit() {
-  
-    this.log("Settings", this.getName(), this.homey.settings.get('ip'))
+    // Check if generic box, if so, skip init
+    // if (this.getData().room_id === null) return;
+    // Set current values
+    /* const res = await this.axiosPut(`/boost/${this.getData().room_id}`, {});
+    if (!res) {
+      this.error('Could not initialize this device');
+      return;
+    }
+    this.setCapabilityValue('level', res.level);
+    this.setCapabilityValue('boost', res.enable);
+    this.setCapabilityValue('timepicker', this.getTimepickerId(res.timeout)); */
+    // Register listeners
 
-    if (!this.hasCapability('measure_airqualityindex')) {
+    /* this.registerCapabilityListener('boost', async value => {
+      const res = await this.setAllValuesRequest(-1, value, this.getCapabilityValue('level'), this.getTimepickerSeconds(this.getCapabilityValue('timepicker')));
+      if (res) this.log('Boost enabled for', this.getName());
+    }); */
+
+    /* this.registerCapabilityListener('boost', this.setOptions.bind(this));
+    this.registerCapabilityListener('timepicker', this.setOptions.bind(this));
+    this.registerCapabilityListener('level', this.setOptions.bind(this)); */
+
+    if (this.getClass() === 'fan' && this.hasCapability('measure_airqualityindex') === false) {
+      this.log('Adding new capability');
       await this.addCapability('measure_airqualityindex');
     }
 
-    if (this.getClass() === 'other' && !this.hasCapability('measure_temperature'))
-      await this.addCapability('measure_temperature');
-    
-    if (this.getClass() === 'other' && !this.hasCapability('measure_humidity'))
-      await this.addCapability('measure_humidity');
-
-    if (this.getClass() === 'other' && !this.hasCapability('measure_co2'))
-      await this.addCapability('measure_co2');
-
     this.registerMultipleCapabilityListener(['boost', 'timepicker', 'level'], this.setOptions.bind(this));
-    this.log('MyDevice has been initialized');
 
+    /* this.registerCapabilityListener('timepicker', async value => {
+      this.log(this.getName(), 'timepicker request', value);
+      // if (this.getCapabilityValue('boost')) {
+      const res = await this.axiosPut(`/boost/${this.getData().room_id}`, JSON.stringify({ enable: true, default_timeout: this.getTimepickerSeconds(value) }));
+      if (res) this.log('Time adjusted for', this.getName());
+      // }
+    });
+
+    this.registerCapabilityListener('level', async value => {
+      this.log(this.getName(), 'level request', value);
+      const res = await this.axiosPut(`/boost/${this.getData().room_id}`, JSON.stringify({ default_level: value, level: value }));
+      if (res) this.log('Level adjusted for', this.getName());
+    }); */
+
+    this.log('MyDevice has been initialized');
   }
 
   /**
@@ -89,7 +114,6 @@ class MyDevice extends Device {
    */
   async onSettings({ oldSettings, newSettings, changedKeys }) {
     this.log('MyDevice settings where changed');
-    this.homey.settings.set('ip', newSettings.ip);
   }
 
   /**
@@ -154,11 +178,33 @@ class MyDevice extends Device {
       // this.log(`/boost/${device.getStoreValue('id')}`, JSON.stringify(jsondata));
     }));
 
+    /* const device = this.getStoreValue('device');
+    const id = this.getStoreValue('id');
+    const state = this.getState();
+    this.log('Boost:', enable, 'level', level, 'time', timeout, 'device', device, 'id', id);
+    // Json creation
+    const jsondata = { enable };
+    // if (enable !== state.boost) jsondata.enable = enable;
+    // else jsondata.enable = state.boost;
+    if (level !== state.level) jsondata.level = level;
+    if (timeout !== this.getSeconds(state.timepicker)) jsondata.timeout = this.getSeconds(timeout);
+
+    if (device === 'main') {
+      await Promise.all(this.driver.getDevices().map(async element => {
+        if (element.getStoreValue('device') !== 'room') return; // Skip if it's not a room (but a ventilation box)
+        await this.axiosPut(`/boost/${element.getStoreValue('id')}`, JSON.stringify(jsondata));
+      }));
+    }
+    if (device === 'room') {
+      const res = await this.axiosPut(`/boost/${id}`, JSON.stringify(jsondata));
+      return res;
+    }
+    return true; */
   }
 
   async axiosPut(endpoint, json, _timeout = 10000, secondtry = false) {
     if (secondtry) this.log('Trying for a second time!', endpoint, json);
-    const url = `http://${this.homey.settings.get('ip')}/v1/api${endpoint}`;
+    const url = `http://${this.getStoreValue('address')}/v1/api${endpoint}`;
     this.log(`Posting to ${url} with json ${json} timeout ${_timeout}`);
     try {
       const resp = await axios.put(url, json, { timeout: _timeout, headers: { 'Content-Type': 'application/json' } });

@@ -4,7 +4,6 @@ const { Driver } = require('homey');
 const dgram = require('dgram');
 const axios = require('axios');
 const { randomBytes } = require('crypto');
-const { HealthboxApi } = require('./api');
 
 class MyDriver extends Driver {
 
@@ -14,21 +13,9 @@ class MyDriver extends Driver {
   async onInit() {
     this.setFlows();
     this.interval = 10000;
-    this.loopErrors = 0;
-    this.homey.settings.on('set', async (param) => {
-      this.log("Settings changed!");
-      this.initHB();
-    })
-    this.initHB();
     this.updateLoop();
-  }
-
-  async initHB() {
-    this.log('Driver initialized, with ip', this.homey.settings.get('ip'));
-    this.hb_api = new HealthboxApi(this.homey.settings.get('ip'))
-    const keyset = await this.hb_api.verifyAccessKey(this.homey.settings.get('api_key'))
-    this.log("Api Key", keyset)
-    this.sensors_enabled = keyset.valid
+    this.loopErrors = 0;
+    this.log('Driver initialized');
   }
 
   async updateLoop() {
@@ -38,7 +25,7 @@ class MyDriver extends Driver {
     }
 
     try {
-      const req = await this.axiosFetch('/api/data/current');
+      const req = await this.axiosFetch(this.homey.settings.get('ip'), '/api/data/current');
       if (!req) throw new Error('Request failed ');
 
       let _aqi = 0;
@@ -52,7 +39,7 @@ class MyDriver extends Driver {
       await Promise.all(this.getDevices().map(async element => {
         if (element.getClass() === 'fan') {
           // Generic Box Ventilation statics
-          const req = await this.axiosFetch('/device/fan');
+          const req = await this.axiosFetch(element.getStoreValue('address'), '/device/fan');
           if (!req) throw new Error('Cannot get /device/fan');
           element.setCapabilityValue('measure_rpm', req.rpm);
           element.setCapabilityValue('measure_flowrate', Math.round(req.flow * 1e1) / 1e1);
@@ -62,27 +49,14 @@ class MyDriver extends Driver {
           }
         } else {
           // Room Ventilation statics
-          const roomInfo = await this.axiosFetch(`/api/boost/${element.getStoreValue('id')}`);
+          const roomInfo = await this.axiosFetch(element.getStoreValue('address'), `/api/boost/${element.getStoreValue('id')}`);
           if (!roomInfo) throw new Error('No roominfo found');
-          const matchedRoom = rooms[element.getStoreValue('id')];
+
+          const matchedRoom = rooms.find(item => item.id === element.getStoreValue('id'));
           element.setCapabilityValue('measure_flowrate', Math.round(matchedRoom.actuator[0].parameter.flow_rate.value * 1e1) / 1e1);
           element.setCapabilityValue('boost', roomInfo.enable);
           element.setCapabilityValue('level', roomInfo.level);
           element.setCapabilityValue('timeleft', new Date(roomInfo.remaining * 1000).toISOString().substr(11, 8));
-          if (this.sensors_enabled && element.hasCapability('measure_temperature') && element.hasCapability('measure_humidity')) {
-            element.setCapabilityValue('measure_temperature', Math.round(matchedRoom.sensor[0].parameter.temperature.value * 1e1) / 1e1);
-            element.setCapabilityValue('measure_humidity', Math.round(matchedRoom.sensor[1].parameter.humidity.value));
-          } 
-          try {
-            if (this.sensors_enabled && element.hasCapability('measure_co2') && element.hasCapability('measure_airqualityindex')) {
-            element.setCapabilityValue('measure_co2', Math.round(matchedRoom.sensor[2].parameter.concentration.value));
-            // element.setCapabilityValue('measure_voc', Math.round(matchedRoom.sensor[1].parameter.humidity.value));
-            element.setCapabilityValue('measure_airqualityindex', Math.round(matchedRoom.sensor[3].parameter.index.value));
-          } 
-          } catch (error) {
-            this.log("Could not get sensor data for", element.getName())
-          }
-          
         }
         if (!element.getAvailable()) await element.setAvailable();
       }));
@@ -132,35 +106,34 @@ class MyDriver extends Driver {
       if (err) this.error('Error!', err);
       else this.log('Message sent!');
     });
-    await new Promise(r => setTimeout(r, 10000));
+    await new Promise(r => setTimeout(r, 2000));
     this.log('Getting Healthboxes done!');
     return devices;
   }
 
   async getRooms(session) {
     const roomDevices = [];
-    const res = await this.axiosFetch('/api/data/current');
-    this.log("res", res);
+    const res = await this.axiosFetch(this.selectedDevice.settings.ip, '/api/data/current');
     if (!res) return [];
-
-    await Promise.all(Object.entries(res.room).map(async ([roomNumber, roomData]) => {
-      this.log(`Room found with id ${roomNumber} and name ${roomData.name}`)
-      const room = await this.axiosFetch(`/api/boost/${roomNumber}`);
-      if (!room) return;
-      const dev = {
-        name: roomData.name,
-        class: 'other',
-        data: { id: `${this.selectedDevice.data.id}#${roomNumber}` },
-        store: {
-          address: this.selectedDevice.settings.ip,
-          id: roomNumber,
-        },
-        icon: '/room.svg',
-      };
-      session.emit('list_devices', dev);
-      roomDevices.push(dev);
-    }));
-    
+    if (res.room && res.room.length) {
+      await Promise.all(res.room.map(async element => {
+        const room = await this.axiosFetch(this.selectedDevice.settings.ip, `/api/boost/${element.id}`);
+        if (!room) return;
+        this.log(element.id, element.name, element.actuator[0].parameter.flow_rate.value, 'm³/h', 'boost enabled', room.enable, 'boost value', room.level, 'remaining', room.remaining);
+        const dev = {
+          name: element.name,
+          class: 'other',
+          data: { id: `${this.selectedDevice.data.id}#${element.id}` },
+          store: {
+            address: this.selectedDevice.settings.ip,
+            id: element.id,
+          },
+          icon: '/room.svg',
+        };
+        session.emit('list_devices', dev);
+        roomDevices.push(dev);
+      }));
+    }
     try {
       // Ventilation Device
       const dev = {
@@ -256,8 +229,8 @@ class MyDriver extends Driver {
     });
   }
 
-  async axiosFetch(endpoint, _timeout = 10000) {
-    const url = `http://${this.homey.settings.get('ip')}/v2${endpoint}`;
+  async axiosFetch(ip, endpoint, _timeout = 10000) {
+    const url = `http://${ip}/v1${endpoint}`;
     try {
       const resp = await axios.get(url, { timeout: _timeout });
       return resp.data;
