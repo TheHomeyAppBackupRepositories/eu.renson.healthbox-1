@@ -8,5 +8,8 @@
       "connection_ok": "Connection successful",
       "connection_error": "Connection not possible"
     }
+  },
+  "settings": {
+    "title": "Renson Settings"
   }
 }
